@@ -190,8 +190,8 @@ function sceneInit() {
 
 function drawRandomLineOnScene() {
 	//Temporary drawing scene
-	drawpencileInterval = setInterval(drawScene, 200);
-	drawScene();
+	//drawpencileInterval = setInterval(drawScene, 200);
+	//drawScene();
 	//
-	drawScene();
+	//drawScene();
 }

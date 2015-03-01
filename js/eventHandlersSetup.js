@@ -72,7 +72,7 @@ function setEventsForObject(objectValue, layer, stage) {
 		});
 	}
 	objectValue.on('mousemove', function (evt) {
-		console.log("move=" + evt.pageX + "yymove=" + evt.pageY);
+		//console.log("move=" + evt.pageX + "yymove=" + evt.pageY);
 		if (isMouseDownResize) {
 			canvasHeight = evt.pageY;
 			canvasWidth = evt.pageX;
@@ -83,18 +83,20 @@ function setEventsForObject(objectValue, layer, stage) {
 		}
 	});
 
-	objectValue.on('mouseup', function (evt) {
-		console.log("up=" + evt.pageX + "yyup=" + evt.pageY);
-		var mainRect = layer.find('#100')[0];
-		mainRect.setSize(evt.pageX, evt.pageY);
-		isMouseDownResize = false;
-	});
+	if (objectValue.getId() == 101) {
+		objectValue.on('mouseup', function (evt) {
+			//console.log("up=" + evt.pageX + "yyup=" + evt.pageY);
+			var mainRect = layer.find('#100')[0];
+			mainRect.setSize(evt.pageX, evt.pageY);
+			isMouseDownResize = false;
+		});
+	}
 
 
 
 	var circle1;
 	objectValue.on('mousemove', function (evt) {
-		console.log("Mouse if moved now");
+		//console.log("Mouse if moved now");
 		var mousePos = stage.getPointerPosition();
 		var x = mousePos.x;
 		var y = mousePos.y;
@@ -102,7 +104,7 @@ function setEventsForObject(objectValue, layer, stage) {
 		$("#positionindicatorsy").innerHTML = "Y Value -> " + y;
 
 		if (isMouseDown && whichFunction == 'ranline') {
-			console.log("drawing");
+			//console.log("drawing");
 			circle1 = new Kinetic.Circle({
 				x: x,
 				y: y,
@@ -119,11 +121,12 @@ function setEventsForObject(objectValue, layer, stage) {
 			setEventsForObject(circle1, layer, stage);
 
 			layer.add(circle1);
+			layer.draw();
 		}
 
 		//For eraser function
 		if (isMouseDown && whichFunction == 'eraser') {
-			console.log("erasing" + backgroundColor1);
+			//console.log("erasing" + backgroundColor1);
 			var eraserRectangle = new Kinetic.Rect({
 				x: x,
 				y: y,
@@ -154,8 +157,8 @@ function setEventsForObject(objectValue, layer, stage) {
 		if (evt.pageX <= canvasWidth && evt.pageY <= canvasHeight && whichFunction == "") {
 			alert("Please select the paint function from right hand side menu first");
 		}
-		console.log(evt.pageX + "lolx");
-		console.log(evt.pageY + "loly");
+		//console.log(evt.pageX + "lolx");
+		//console.log(evt.pageY + "loly");
 
 
 
@@ -180,7 +183,7 @@ function setEventsForObject(objectValue, layer, stage) {
 
 	objectValue.on('mouseup', function () {
 		isMouseDown = false;
-		console.log(isMouseDown);
+		//console.log(isMouseDown);
 
 		if (toClear) {
 
@@ -393,6 +396,7 @@ function setEventsForObject(objectValue, layer, stage) {
 			drawObject.on('click', function (evt) {
 				if (whichFunction == 'wholefill') {
 					drawObject.setFill(fillColor);
+					drawObject.draw();
 					console.log("wholefill");
 				}
 
@@ -434,7 +438,7 @@ function setEventsForObject(objectValue, layer, stage) {
 		if (whichFunction != 'wholefill') {
 			fillColor = backgroundColor1;
 		}
-		console.log("mousedown....");
+		//console.log("mousedown....");
 		isMouseDown = true;
 		var mousePos = stage.getPointerPosition();
 		startx = mousePos.x;
@@ -444,7 +448,7 @@ function setEventsForObject(objectValue, layer, stage) {
 		var node = stage.get('#100')[0].getId();
 
 
-		console.log(node + " this is it");
+		//console.log(node + " this is it");
 		var pixelData = document.getElementsByTagName('canvas')[0].getContext('2d').getImageData(startx, starty, 1, 1).data;
 		var hex = "#" + ("000000" + rgbToHex(pixelData[0], pixelData[1], pixelData[2])).slice(-6);
 		$('#selColorValue').value = hex;
@@ -472,6 +476,7 @@ function setEventsForObject(objectValue, layer, stage) {
 					draggable: true
 				});
 				layer.add(redLine);
+				layer.draw();
 				polygonPoints.length = 0;
 			}
 		});
@@ -521,7 +526,7 @@ function setEventsForObject(objectValue, layer, stage) {
 
 						polygonPoints = new Array();
 						layer.add(poly);
-
+						layer.draw();
 						//layer.draw();
 						poly.on('click', function (evt) {
 								poly.setDraggable(false);
@@ -529,6 +534,7 @@ function setEventsForObject(objectValue, layer, stage) {
 
 								if (whichFunction == 'wholefill') {
 									poly.setFill(fillColor);
+									layer.draw();
 									console.log("wholefill");
 								}
 
@@ -541,7 +547,7 @@ function setEventsForObject(objectValue, layer, stage) {
 				if (whichFunction == 'imageobject') {}
 
 
-				console.log(" sp ressed" + splinePoints);
+				//console.log(" sp ressed" + splinePoints);
 				if (splinePoints.length > 0) {
 					console.log("drawing" + whichFunction);
 					var randomShape;
@@ -607,8 +613,10 @@ function setEventsForObject(objectValue, layer, stage) {
 
 			layer.add(circle);
 
+
 		}
 
 	});
 	layer.add(objectValue);
+	layer.draw();
 }

@@ -10,6 +10,7 @@ var iLMx = iLMy = 0; // last pointer positions
 var vActShape; // active shape object
 var drawpencileInterval;
 
+var previousSelectedColor = '#ffffff';
 var whichFunction = 'drawline';
 var objectarray = [];
 var marginHorizontal = 175;

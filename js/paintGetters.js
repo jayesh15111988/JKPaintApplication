@@ -8,6 +8,6 @@ function getColorSelected(colorName) {
 		var mainRect = layer.find('#100')[0];
 		mainRect.setFill(backgroundColor1);
 		layer.draw();
-
 	}
+	previousSelectedColor = colorName;
 }

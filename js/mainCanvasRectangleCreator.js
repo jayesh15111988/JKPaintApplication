@@ -29,6 +29,8 @@ function createMainRectangle(layer, stage) {
 
 		if (whichFunction == 'wholefill') {
 			rectMain.setFill(fillColor);
+			//rectMain.draw();
+			layer.draw();
 			console.log("wholefill for rectmain");
 		}
 	});

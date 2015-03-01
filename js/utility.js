@@ -24,12 +24,14 @@ function findPos(obj) {
 	return undefined;
 }
 
-$("#flat").spectrum({
-	flat: true,
-	showInput: true
-});
-$("#flatClearable").spectrum({
-	flat: true,
-	showInput: true,
-	allowEmpty: true
-});
+function addRGBColorPicker() {
+	$("#flat").spectrum({
+		flat: true,
+		showInput: true
+	});
+	$("#flatClearable").spectrum({
+		flat: true,
+		showInput: true,
+		allowEmpty: true
+	});
+}

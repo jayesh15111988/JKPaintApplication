@@ -17,6 +17,13 @@ function goseterasersize(erasersize) {
 
 function gosetcolortype(colortype) {
 	colorType = colortype;
+	if (colortype == 'stroke') {
+		strokeColor = previousSelectedColor;
+	} else if (colortype == 'fill') {
+		fillColor = previousSelectedColor;
+	} else if (colortype == 'back') {
+		backgroundColor1 = previousSelectedColor;
+	}
 }
 
 function gosetfontsize(fontsize) {
