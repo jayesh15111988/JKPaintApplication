@@ -1,1462 +1,314 @@
 <html>
+
 <head>
-<link rel='stylesheet' href='spectrum.css' />
-  <style>
+    <link rel='stylesheet' href='style/spectrum.css' />
+    <link rel='stylesheet' href='style/style.css'>
 
-.drawline{
-  margin-left: :1220px;
-  position: absolute;
-}
-button{
-      color: white;
-            border-radius: 4px;
-            text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-background: rgb(28, 184, 65);
-}
+    <script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.7.4.min.js"></script>
+    <script src="libraries/jquery-1.10.2.min.js"></script>
+    <script src="libraries/keypress-1.0.9.min.js"></script>
+    <script src='libraries/spectrum.js'></script>
+    <script src='libraries/rgbcolor.js'></script>
 
-input[type=text] {
-    width:12em; 
-    border-radius:2px; 
-    border: solid 1px #ccc; 
-    padding:0.4em; 
-    background-color: #f5f5f5; 
-    box-shadow: inset 0 2px 3px rgba(0,0,0,0.2); 
-}
+    <script src='js/mainDrawingFile.js'></script>
+    <script src='js/paintSetters.js'></script>
+    <script src='js/paintGetters.js'></script>
+    <script src='js/drawRandomLine.js'></script>
+    <script src='js/eventHandlersSetup.js'></script>
+    <script src='js/mainCanvasRectangleCreator.js'></script>
+    <script src='js/keyPressEvents.js'></script>
+    <script src='js/undo.js'></script>
+    <script src='js/clearAll.js'></script>
+    <script src='js/colorUtility.js'></script>
+    <script src='js/utility.js'></script>
 
-#containersmall{
-  
-  
-   color: #222;
-text-shadow: 0px 1px 1px #555;
-}
-/*http://cssdeck.com/labs/styling-select-box-with-css3 */
-select {
-    padding:3px;
-    margin: 0;
-    -webkit-border-radius:4px;
-    -moz-border-radius:4px;
-    border-radius:4px;
-    -webkit-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
-    -moz-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
-    box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
-    background: rgb(28, 184, 65);
-    color:rgb(228, 255, 255);
-    border:none;
-    outline:none;
-    display: inline-block;
-    -webkit-appearance:none;
-    -moz-appearance:none;
-    appearance:none;
-    cursor:pointer;
-}
-.wait {cursor:wait}​
+    <script type="text/javascript">
+        'use strict';
 
-/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    select {padding-right:18px}
-}
-
-
-
-  </style>
-
-<script src="jquery-1.10.2.min.js"></script>
-<script src="http://d3lp1msu2r81bx.cloudfront.net/kjs/js/lib/kinetic-v4.7.4.min.js"></script>
-<script src="keypress-1.0.9.min.js"></script>
-<script src='spectrum.js'></script>
-<script src='rgbcolor.js'></script>
-
-		<script type="text/javascript">
-/* All for javascript pendical function */
-var canvasHeight=window.innerHeight-100;
-var canvasWidth=window.innerWidth-175-40; 
-
-var seldelFinalx,seldelFinaly;
-var canvas, ctx; // canvas and context objects
-var vPointer; // draw pointer pbject
-var aShapes = []; // shapes array
-var iLMx = iLMy = 0; // last pointer positions
-var vActShape; // active shape object
-var drawpencileInterval;
-// Draw main scene function
-function drawScene() {
-//console.log("drawing");
-    //ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height); // Clear canvas
-
-
-if(whichFunction=='ranline'){
-    if (vPointer.bDown) { // on mouse down
-        var iDx = iLMx - vPointer.X;
-        var iDy = iLMy - vPointer.Y;
-        var dif = Math.sqrt(iDx * iDx + iDy * iDy); // difference between two last points
-        if (dif > 5) {
-            if (!vActShape) {
-                aShapes.push( // prepare a new shape object
-                    vActShape = new Shape()
-                );
-                vActShape.color = 'black';//getRandomColor();
-            }
-            iLMx = vPointer.X;
-            iLMy = vPointer.Y;
-
-            vActShape.addPoint(vPointer.X - canvas.width  * 0.5, vPointer.Y - canvas.height * 0.5, 0);
-        
-        }
-    } else {
-        // Once mouse is released - cleanup
-        if (vActShape) {
-            vActShape = '';
-            iLMx = iLMy = 0;
-        }
-
-        // Rotate the shapes
-        
-    }
-}
-    // Draw all shapes
-    aShapes.forEach(function(sh) {
-        sh.draw();
-    });
-
-}
-
-// Point object
-CPointer = function (canvas) {
-    var self = this;
-    this.body = document.body;
-    this.html = document.documentElement;
-    this.elem = canvas;
-    this.X = 0;
-    this.Y = 0;
-    this.Xi = 0;
-    this.Yi = 0;
-    this.Xr = 0;
-    this.Yr = 0;
-    this.startX = 0;
-    this.startY = 0;
-    this.bDrag = false;
-    this.bMoved = false;
-    this.bDown = false;
-    this.bXi = 0;
-    this.bYi = 0;
-    this.sX = 0;
-    this.sY = 0;
-    this.left = canvas.offsetLeft;
-    this.top = canvas.offsetTop;
-
-    self.elem.onmousedown = function (e) {
-        self.bDrag = false;
-        self.bMoved = false;
-        self.bDown = true;
-        self.Xr = e.clientX;
-        self.Yr = e.clientY;
-
-        self.X  = self.sX = self.Xr - self.left;
-        self.Y  = self.sY = self.Yr - self.top + ((self.html && self.html.scrollTop) || self.body.scrollTop);
-    }
-    self.elem.onmousemove = function(e) {
-        self.Xr = (e.clientX !== undefined ? e.clientX : e.touches[0].clientX);
-        self.Yr = (e.clientY !== undefined ? e.clientY : e.touches[0].clientY);
-        self.X  = self.Xr - self.left;
-        self.Y  = self.Yr - self.top + ((self.html && self.html.scrollTop) || self.body.scrollTop);
-        if (self.bDown) {
-            self.Xi = self.bXi + (self.X - self.sX);
-            self.Yi = self.bYi - (self.Y - self.sY);
-        }
-  if(whichFunction=='ranline')
-    //drawScene();
-        if (Math.abs(self.X - self.sX) > 2 || Math.abs(self.Y - self.sY) > 2) {
-            self.bMoved = true;
-            if (self.bDown) {
-                if (! self.bDrag) {
-                    self.startX = self.sX;
-                    self.startY = self.sY;
-                    self.bDrag = true;
-                }
+        $(document).ready(function() {
+            if (window.attachEvent) {
+                window.attachEvent('onload', sceneInit);
             } else {
-                self.sX = self.X;
-                self.sY = self.Y;
-            }
-        }
-    
-    }
-    self.elem.onmouseup = function() {
-      
-
-        self.bXi = self.Xi;
-        self.bYi = self.Yi;
-        if (! self.bMoved) {
-            self.X = self.sX;
-            self.Y = self.sY;
-        }
-        if(whichFunction=='ranline')
-        drawScene();
-        
-        self.bDrag = false;
-        self.bDown = false;
-        self.bMoved = false;
-       
-    
-    }
-}
-
-var Point = function (x, y, z) {
-    this.x  = x;
-    this.y  = y;
-    this.z  = z;
-    this.x0 = x;
-    
-    this.xp = 0;
-    this.yp = 0;
-    this.zp = 0;
-    this.fov = 2000;
-}
-Point.prototype.project = function () {
-    this.zp = this.fov / (this.fov + this.z);
-    this.xp = this.x * this.zp;
-    this.yp = this.y * this.zp;
-}
-
-
-// Shape object
-var Shape = function () {
-    this.angle = 0;
-    this.color = strokeColor;
-    this.halfheight = canvas.height / 2;
-    this.halfwidth = canvas.width / 2;
-    this.len = 0;
-    this.points = [];
-    return this;
-}
-// Add point to shape
-Shape.prototype.addPoint = function (x, y, z) {
-    this.points.push(
-        new Point(Math.round(x), Math.round(y), Math.round(z))
-    );
-    this.len++;
-}
-// Rotate shape
-
-Shape.prototype.draw = function () {
-    // points projection
-    for (var i = 0; i < this.len; i++) {
-        this.points[i].project();
-    }
-    // draw a curved line between points
-    var p0 = this.points[0];
-
-    ctx.beginPath();
-    ctx.moveTo(p0.xp + this.halfwidth, p0.yp + this.halfheight);
-    for (var i = 1, pl = this.points.length; i < pl; i++) {
-        var apnt = this.points[i];
-        var xc = (p0.xp + apnt.xp) / 2;
-        var yc = (p0.yp + apnt.yp) / 2;
-        ctx.quadraticCurveTo(p0.xp + this.halfwidth, p0.yp + this.halfheight, xc + this.halfwidth, yc + this.halfheight);
-        p0 = apnt;
-    }
-
-    // stroke properties
-    ctx.lineWidth = lineWidth;
-    ctx.strokeStyle = strokeColor;//this.color;
-    ctx.lineCap = lineCapStyle; // rounded end caps
-    ctx.stroke();
-}
-
-// Initialization
-function sceneInit() {
-    canvas = document.getElementsByTagName('canvas')[0];
-    ctx = canvas.getContext('2d');
-    //canvas.style.width=canvasWidth;
-    //canvas.style.height=canvasHeight;
-    vPointer = new CPointer(canvas);
-     // /drawScene();
-}
-
-/* End of javscript pen function */
-var whichFunction='drawline';		
-var objectarray=[];
-var marginHorizontal=175;
-var marginVertical=100;
-var backgroundColor1='#ffffff';
-var isMouseDown=false;
-var startx,starty;
-var polygonPoints=new Array();
-var splinePoints=[];
-var isDrawingPolygon=false;
-var textMessage;
-var isDraggindDone=false;
-var lineWidth=1;
-var borderWidth=1;
-var eraserSize=3;
-var trianglesides=3;
-var colorType="stroke";
-var strokeColor='#000000';
-var fillColor="#ffffff";
-var cornerradius=1;
-var textFontSize=18;
-var textFontFamily='Calibri';
-var stage;
-var layer;
-var isMouseDownResize=false;
-var lineStyleDraw='simple';
-var lineCapStyle='round';
-var imageName='rf.jpg';
-var opacityVal=1;
-var wedgeAngle=0;
-var idShapes=200;
-var testval=204;
-//$("*").css("cursor", "url(images/ss.jpg)");
-//$("*").css('cursor','url(rf.jpg),auto');
-/* Source : http://www.phpied.com/files/rgbcolor/rgbcolor.html */
- 
-
-function clearAll1(){
-     console.log("before");
-     if(whichFunction!='ranline'){
-var shapes=[];
-shapes= layer.getChildren();
-console.log("after");
-var shapes1 = layer.find('.ranline');
-var shapesEraser = layer.find('.eraser');
-
-
-
-
-console.log(shapes1.length+"lengthddd");
-console.log("shapes length "+shapes.length);
-
-
-console.log("first");
-for(var i =0 ;i<shapes.length;i++){
-
-if(shapes[i]){
-console.log(shapes[i].getId());
-console.log(idShapes+" final");
-
-if(shapes[i].getId()!=100 && shapes[i].getId()!=101 && shapes[i].getId()==idShapes-1)
-//console.log("this is id "+shapes[i].getId());
-shapes[i].hide();
-//testval-=1;
-
-//shapes[i].setId(1000);
-
-layer.draw();
-//idShapes-=1;
-}
-
-}
-idShapes=idShapes-1;
-}
-     }
-function clearAll2(){
-  //clearInterval(drawpencileInterval);
-//aShapes=[];
-  
-  createMainRectangle(layer,stage); 
-layer.draw();
-     }
-
-
-
-
- function isThatColor() {
-               
-                var color = new RGBColor(document.getElementById('selColorValue').value);
-                if (color.ok) {
-                    document.getElementById('result1').style.backgroundColor
-                        = 'rgb(' + color.r + ', ' + color.g + ', ' + color.b + ')';
-                    document.getElementById('result-text').innerHTML
-                        = 'Red: ' + color.r
-                          + '<br />Green: ' + color.g
-                          + '<br />Blue: ' + color.b
-                          + '<br />RGB: ' + color.toRGB()
-                          + '<br />Hex: ' + color.toHex()
-                          ;
+                if (window.onload) {
+                    var curronload = window.onload;
+                    var newonload = function() {
+                        curronload();
+                        sceneInit();
+                    };
+                    window.onload = newonload;
                 } else {
-                    document.getElementById('result-text').innerHTML = 'Never heard of such a color :(';
-                    document.getElementById('result').style.backgroundColor
-                        = 'rgb(255, 255, 255)';
+                    window.onload = sceneInit;
                 }
             }
 
-function gosetwidth(linewidth){
-  lineWidth=linewidth;
-  borderWidth=lineWidth;
-}
-
-function gosetopacity(opacityval){
-opacityVal=opacityval;
-}
-
-function gosettrianglesides(trianglesidesval){
-  trianglesides=trianglesidesval;
-}
-
-function goseterasersize(erasersize){
-eraserSize=erasersize;
-}
-
-function gosetcolortype(colortype){
-
-colorType=colortype;
-
-}
-
-function gosetfontsize(fontsize){
-  textFontSize=fontsize;
-}
-
-function gosetfontfamily(fontfamily){
-  textFontFamily=fontfamily;
-}
-
-function gosetlinestyle(lineStyleName){
-lineStyleDraw=lineStyleName;
-}
-
-function gosetcornerradius(cornerradiusval){
-  cornerradius=cornerradiusval;
-}
-
-function getColorSelected(colorName){
-if(colorType=="stroke"){
-strokeColor=colorName;
-}
-else if(colorType=="fill"){
-fillColor=colorName;
-}
-else if(colorType=="back"){
-backgroundColor1=colorName;
-var mainRect=layer.find('#100')[0];
-mainRect.setFill(backgroundColor1);
-layer.draw();
-
-}
-}
-
-function gosetlinecapstyle(capStyle){
-  lineCapStyle=capStyle;
-}
-
-function isNumber(o) {
-    return typeof o == "number" || (typeof o == "object" && o.constructor === Number);
-}
-
-
-function setEventHandlers(typeDrawing){
-   whichFunction=typeDrawing;
-   //Just to rest shape so that we won't end up drawing undesirable shape on the scene
-if(whichFunction=='reset'){
-  whichFunction="";
-}
-
-if(whichFunction=='polygon'|| whichFunction=='spline'|| whichFunction=='blob'){
-    alert("Please click, draw and move the mouse to select desired points. Once done with all points, please press key 's' to draw desired shape");
-}
-
-if(whichFunction=='ranline'){
-//Temporary drawing scene
-//drawpencileInterval= setInterval(drawScene, 200);
-  //drawScene();
-  //
-//drawScene();
-
-}
-
-if(isNumber(typeDrawing)){
-  console.log("number");
-  wedgeAngle=typeDrawing;
-  whichFunction="wedge";
-}
-else{
-  console.log("non number");
-}
-
-if(whichFunction=='text'){
-
-var person=prompt("Please draw a rectangle After clicking Ok button on this menu \n Please enter your name","Harry Potter");
-
-if (person!=null)
-  {
-  textMessage=person;
-  }
-
-}
-else if(whichFunction=='imageobject'){
-
-var imagename=prompt("Please Enter image name along with extension","rf.jpg");
-
-if (person!=null)
-  {
-  imageName=imagename;
-  }
-
-var imageObj = new Image();
-      imageObj.src = imageName;
-      imageObj.onload = function() {
-        var yoda = new Kinetic.Image({
-          x: 10,
-          y: 10,
-          image: imageObj,
-          opacity:opacityVal,
-          id:idShapes++,
-          draggable:true
-        });
-yoda.setFillLinearGradientEndPoint(20, 40);
-yoda.on('click',function(evt){
-yoda.setDraggable(false);
- setEventsForObject(yoda,layer,stage);
- })
-
-
-        // add the shape to the layer
-        layer.add(yoda);
- layer.draw();
-        // add the layer to the stage
-        
-      };
-}
-
-
- }
-
-
-function createMainRectangle(layer,stage){
-
-
-
-
-
-var rectMain = new Kinetic.Rect({
-        x: 0,
-        y: 0,
-        width: window.innerWidth-175-40,
-        height:window.innerHeight-100,
-        fill: backgroundColor1,
-        stroke: 'black',
-        strokeWidth: 2,
-        id:100
-      });
-
-var rectSmall = new Kinetic.Rect({
-        x: window.innerWidth-225,
-        y: window.innerHeight-110,
-        width: 10,
-        height:10,
-        fill: 'green',
-        stroke: 'green',
-        strokeWidth: 2,
-        id:101
-      });
-
-
-
-setEventsForObject(rectMain,layer,stage);
-rectMain.on('click',function(evt){
-
-if(whichFunction=='wholefill'){
-  rectMain.setFill(fillColor);
-  console.log("wholefill for rectmain");
-}
-});
-
-setEventsForObject(rectSmall,layer,stage);
-layer.draw();
-}
-
-function setEventsForObject(objectValue,layer,stage){
-var endx,endy;
-var text;
-var toClear=false;
-
- layer.add(objectValue);
-if(objectValue.getId()==101){
- objectValue.on('mousedown', function(evt) {
-  whichFunction="";
-console.log("xxdown="+evt.pageX+"yydown="+evt.pageY);
-isMouseDownResize=true;
-var smallRect=layer.find('#101')[0];
-smallRect.setPosition(evt.pageX-10,evt.pageY-10);
- });
-  objectValue.on('mousemove', function(evt) {
-console.log("xxmove="+evt.pageX+"yymove="+evt.pageY);
-if(isMouseDownResize){
-    canvasHeight=evt.pageY;
-    canvasWidth=evt.pageX;
-var smallRect=layer.find('#101')[0];
-smallRect.setPosition(evt.pageX-10,evt.pageY-10);
-var mainRect=layer.find('#100')[0];
-mainRect.setSize(evt.pageX,evt.pageY);
- }
- });
-   objectValue.on('mouseup', function(evt) {
-console.log("xxup="+evt.pageX+"yyup="+evt.pageY);
-var mainRect=layer.find('#100')[0];
-mainRect.setSize(evt.pageX,evt.pageY);
-isMouseDownResize=false;
- });
-}
-
-
-var circle1;
- objectValue.on('mousemove', function(evt) {
-        var mousePos = stage.getPointerPosition();
-        var x = mousePos.x ;
-        var y = mousePos.y ;
-        document.getElementById("positionindicatorsx").innerHTML="X Value -> "+ x;
-        document.getElementById("positionindicatorsy").innerHTML="Y Value -> "+ y;
-
-if(isMouseDown && whichFunction=='ranline'){
-console.log("drawing");
-circle1 = new Kinetic.Circle({
-        x: x,
-        y: y,
-        radius: 0.1,
-        fill: fillColor,
-        stroke: strokeColor,
-        strokeWidth: 1,
-        opacity:opacityVal,
-        name:'ranline',
-        id:200
-      });
-
-
- setEventsForObject(circle1,layer,stage);
-
-    layer.add(circle1);
-}
-
-//For eraser function
-if(isMouseDown && whichFunction=='eraser'){
-console.log("erasing"+backgroundColor1);
-var eraserRectangle = new Kinetic.Rect({
-        x: x,
-        y: y,
-        width:eraserSize,
-        height:eraserSize,
-        fill: backgroundColor1,
-        stroke: backgroundColor1,
-        strokeWidth: 1,
-        name:'eraser',
-        draggable:false,
-        id:200
-      });
-setEventsForObject(eraserRectangle,layer,stage);
-    layer.add(eraserRectangle);
-}
-   layer.draw();
- });
-   
-
-   document.body.onmouseup = function(evt) {
- isMouseDown=false;
-}
-
-
- document.body.onmousedown = function(evt) {
- isMouseDown=true;
-
- if(evt.pageX<=canvasWidth && evt.pageY<=canvasHeight && whichFunction==""){
-alert("Please select the paint function from right hand side menu first");
- }
- console.log(evt.pageX+"lolx");
- console.log(evt.pageY+"loly");
-
-
-
- 
-}
-
-        objectValue.on('mouseout', function() {
-        var mousePos = stage.getPointerPosition();
-        var x = mousePos.x ;
-        var y = mousePos.y ;
-      
-      
-      });
-
-function rgbToHex(r, g, b) {
-    if (r > 255 || g > 255 || b > 255) throw "Invalid color component";
-    return ((r << 16) | (g << 8) | b).toString(16);
-}
-
-function findPos(obj) {
-console.log("right");
-    var curleft = 0,
-        curtop = 0;
-    if (obj.offsetParent) {
-        do {
-            curleft += obj.offsetLeft;
-            curtop += obj.offsetTop;
-        } while (obj = obj.offsetParent);
-        return {
-            x: curleft,
-            y: curtop
-        };
-    }
-    return undefined;
-}
-
-
-$('#container canvas').mousemove(function (e) {
-   
-    
-});
-
-
-        objectValue.on('mouseup', function() {
-        	isMouseDown=false;
-        console.log(isMouseDown);
-        
-if(toClear){
-
-	toClear=false;
-}
-        var mousePos = stage.getPointerPosition();
-        var x = mousePos.x ;
-        var y = mousePos.y ;
-      
-     
- var drawObject;
-
-if(whichFunction=='polygon'){
-  polygonPoints.push(x,y);
-}
-if(whichFunction=='spline'|| splinePoints=='blob' || whichFunction=='star'){
-  splinePoints.push(x,y);
-
-if(whichFunction=='star'){
-
-  var starRadius=Math.sqrt(Math.pow((startx-x),2)+Math.pow((starty-y),2));
-  drawObject= new Kinetic.Star({
-        x: startx,
-        y: starty,
-        numPoints: 6,
-        innerRadius: starRadius/2,
-        outerRadius: starRadius,
-        fill: fillColor,
-        stroke: strokeColor,
-        strokeWidth: lineWidth,
-        opacity:opacityVal,
-        id:idShapes++,
-        draggable:true
-
-      });
-}
-
-  console.log(splinePoints.length);
-  console.log("\n");
-  console.debug(splinePoints);
-}
-
-
-     
-      var textrect;
-      if(whichFunction=='drawline'){
-
-if(lineStyleDraw=='simple'){
- drawObject = new Kinetic.Line({
-points: [startx, starty, x, y],
-        stroke: strokeColor,
-        strokeWidth: lineWidth,
-        lineCap: lineCapStyle,
-        lineJoin: lineCapStyle,
-        opacity:opacityVal,
-        draggable:true,
-        id:idShapes++
-  });
-}
- else if(lineStyleDraw=='dotline'){
-  drawObject = new Kinetic.Line({
-points: [startx, starty, x, y],
-        stroke: strokeColor,
-        strokeWidth: lineWidth,
-        lineCap: lineCapStyle,
-        lineJoin: lineCapStyle,
-        opacity:opacityVal,
-        dashArray: [33, 10],
-        draggable:true,
-        id:idShapes++
-});
- }
- else if(lineStyleDraw=='centerline'){
-  drawObject = new Kinetic.Line({
-points: [startx, starty, x, y],
-        stroke: strokeColor,
-        strokeWidth: lineWidth,
-        lineCap: lineCapStyle,
-        lineJoin: lineCapStyle,
-        opacity:opacityVal,
-        dashArray: [29, 20, 0.001, 20],
-        draggable:true,
-        id:idShapes++
-});
- }
-
-      }
-      else if(whichFunction=='drawrect' || whichFunction=='seldel'){
-      	console.log(whichFunction);
-        var tempSelDelColor,tempSelDelBorderWidth;
-        if(whichFunction=='seldel'){
-            tempSelDelColor='red';
-            tempSelDelBorderWidth=2;
-            seldelFinalx=x;
-            seldelFinaly=y;
-        }
-        else{
-            tempSelDelColor=strokeColor;
-            tempSelDelBorderWidth=borderWidth;
-        }
-drawObject = new Kinetic.Rect({
-        x: startx,
-        y: starty,
-        width: x-startx,
-        height:y-starty,
-        fill: fillColor,
-        stroke:tempSelDelColor,
-        strokeWidth: tempSelDelBorderWidth,
-        cornerRadius: cornerradius,
-        opacity:opacityVal,
-        draggable:true,
-        id:idShapes++
-      });
-//drawObject.dashEnabled(true);
-
-
-
-      }
-      else if(whichFunction=='text'){
- textrect = new Kinetic.Text({
-        x: startx,
-        y:starty,
-        text: textMessage,
-        fontSize: textFontSize,
-        fontFamily: textFontFamily,
-        fill: fillColor,
-        stroke:strokeColor,
-        opacity:opacityVal,
-        width: (x-startx)*2,
-        padding: 10,
-        draggable:true,
-        id:idShapes++
-      });
-
-      drawObject= new Kinetic.Rect({
-        x: startx,
-        y: starty,
-        stroke: strokeColor,
-        strokeWidth: borderWidth,
-        fill:fillColor,
-        width: (x-startx)*2,
-        height: (y-starty)*2,
-        shadowColor: 'black',
-        shadowBlur: 5,
-        opacity:opacityVal,
-        shadowOffset: [2, 2],
-        shadowOpacity: 0.3,
-        cornerRadius: cornerradius,
-        draggable:true,
-        id:200
-      });
-
-
-
-
-      }
-
-      else if(whichFunction=='drawcircle'){
-
-      	var radiusCircle=Math.sqrt(Math.pow((startx-x),2)+Math.pow((starty-y),2));
-drawObject = new Kinetic.Circle({
-        x: startx,
-        y: starty,
-        radius: radiusCircle,
-        fill: fillColor,
-        stroke: strokeColor,
-        opacity:opacityVal,
-        strokeWidth: borderWidth,
-        draggable:true,
-        id:idShapes++
-      });
-      }
-else if(whichFunction=='ellipse'){
-
-drawObject= new Kinetic.Ellipse({
-                x: (x+startx)/2,
-                y: (y+starty)/2,
-                radius:{
-                    x: Math.abs(x-startx)/2,
-                    y: Math.abs(y-starty)/2
-                },
-                stroke: strokeColor,
-                strokeWidth: lineWidth,
-                fill: fillColor,
-                draggable: true,
-                id:idShapes++
+            layer = new Kinetic.Layer({
+                rotationDeg: 0,
+                draggable: false
             });
 
-
-}
-
-      else if(whichFunction=='wedge'){
-        var radiusCircle=Math.sqrt(Math.pow((startx-x),2)+Math.pow((starty-y),2));
-        drawObject=new Kinetic.Wedge({
-        x: startx,
-        y: starty,
-        radius: radiusCircle,
-        angleDeg: 180,
-        fill: fillColor,
-        stroke: strokeColor,
-        strokeWidth: lineWidth,
-        rotationDeg: wedgeAngle,
-        draggable:true,
-        id:idShapes++
-      });
-
-
-
-
-
-      }
-      else if(whichFunction=='drawtriangle'){
-      	var radiusTriangle=Math.sqrt(Math.pow((startx-x),2)+Math.pow((starty-y),2));
-drawObject= new Kinetic.RegularPolygon({
-        x:startx,
-        y: starty,
-        sides: trianglesides,
-        radius: radiusTriangle,
-        fill: fillColor,
-        stroke: strokeColor,
-        opacity:opacityVal,
-        strokeWidth: borderWidth,
-        draggable:true,
-        id:idShapes++
-      });
-      }
-      if(drawObject){
-
-drawObject.on('click',function(evt){
-if(whichFunction=='wholefill'){
-  drawObject.setFill(fillColor);
-  console.log("wholefill");
-}
-
-
-drawObject.setDraggable(false);
- setEventsForObject(drawObject,layer,stage);
- })
-layer.add(drawObject);
-
-}
-
-
-if(whichFunction=='text'){
-textrect.on('click',function(evt){
-//textrect.setDraggable(false);
- setEventsForObject(textrect,layer,stage);
- })
-
-textrect.on('mouseup',function(evt){
-if(textrect.isDraggable())
-textrect.setDraggable(true);
-else
-textrect.setDraggable(false);
-
-})
-console.log("added");
-layer.add(textrect);
-whichFunction="textfinish";
-}
-      });     
-
-
-
-     
-          objectValue.on('mousedown', function(event) {
-        
-if(whichFunction!='wholefill'){
-  fillColor=backgroundColor1;
-}
-console.log("mousedown....");
-        isMouseDown=true;
-        var mousePos = stage.getPointerPosition();
-        startx = mousePos.x ;
-        starty = mousePos.y ;
-
-console.log(document.getElementsByTagName('canvas'));
-var node = stage.get('#100')[0].getId();
-
-
-console.log(node+" this is it");
-var pixelData=document.getElementsByTagName('canvas')[0].getContext('2d').getImageData(startx, starty, 1, 1).data;
-var hex = "#" + ("000000" + rgbToHex(pixelData[0], pixelData[1], pixelData[2])).slice(-6);
-document.getElementById('selColorValue').value=hex;
-
-if(whichFunction=='polygon' || whichFunction=='multiline'){
-  
-  polygonPoints.push(startx,starty);
-}
-if(whichFunction=='spline' || whichFunction=='blob' || whichFunction=='star')
-{
-  splinePoints.push(startx,starty);
-}
-
-
-keypress.combo("enter", function() {
-    console.log("You pressed enter1");
-if(polygonPoints.length>0){
-var redLine = new Kinetic.Line({
-        points: polygonPoints,
-        stroke: strokeColor,
-        strokeWidth: borderWidth,
-        lineCap: 'round',
-        opacity:opacityVal,
-        lineJoin: 'round',
-        id:idShapes++,
-        draggable:true
-      });
-layer.add(redLine);
-polygonPoints.length=0;
-}
-}
-);
-
-
-keypress.combo("delete",function()
-{
-if(whichFunction=='seldel'){
-var seldelFromCanvas = new Kinetic.Rect({
-        x: startx-1,
-        y: starty-1,
-        width: seldelFinalx-startx+1,
-        height:seldelFinaly-starty+1,
-        fill: backgroundColor1,
-        stroke:backgroundColor1,
-        strokeWidth: 2,
-        opacity:opacityVal,
-        draggable:false,
-        id:idShapes++
-      });
-
-setEventsForObject(seldelFromCanvas,layer,stage);
-layer.add(seldelFromCanvas);
-layer.draw();
-
-}
-
-
-})
-
-
-keypress.combo("s",function()
-{
-
-if(polygonPoints.length>0){
-if(whichFunction=='polygon'){
-  console.log(polygonPoints);
-
-
-
-  var poly= new Kinetic.Polygon({
-        points: polygonPoints,
-        fill: fillColor,
-        stroke: strokeColor,
-        strokeWidth: lineWidth,
-        id:idShapes++,
-        draggable:true
-      });
-      
-polygonPoints=new Array();
-layer.add(poly);
-
-      //layer.draw();
-poly.on('click',function(evt){
-poly.setDraggable(false);
- setEventsForObject(poly,layer,stage);
-
-if(whichFunction=='wholefill'){
-  poly.setFill(fillColor);
-  console.log("wholefill");
-}
-
-
- })
-//return;
-}
-}
-
-if(whichFunction=='imageobject'){
-}
-
-
-console.log(" sp ressed"+splinePoints);
-if(splinePoints.length>0)
-{
-  console.log("drawing"+whichFunction);
-var randomShape;
-if(whichFunction=='spline'){
-randomShape= new Kinetic.Spline({
-        points:splinePoints,
-        stroke: strokeColor,
-        strokeWidth: borderWidth,
-        lineCap: 'round',
-        opacity:opacityVal,
-        tension: 0.5,
-        id:idShapes++,
-        draggable:true
-      });
-}
-else if(whichFunction=='imageobject'){
-}
-else if(whichFunction=='blob'){
-console.log("blob"); 
- randomShape = new Kinetic.Blob({
-        points: splinePoints,
-        stroke: strokeColor,
-        strokeWidth: borderWidth,
-        fill: fillColor,
-        opacity:opacityVal,
-        id:idShapes++,
-        draggable:true,
-        tension: 0.8
-      });
-randomShape.setFillG="green";
-}
-console.log("inside spline");
-console.log(splinePoints+"  "+splinePoints[1]+"all spline");
-randomShape.on('click',function(evt){
-randomShape.setDraggable(false);
- setEventsForObject(randomShape,layer,stage);
- })
-
-
-layer.add(randomShape);
-layer.draw();
-  splinePoints=[];
-
-}
-}
-
-  )
-
-
-var circle;
-
-        if(whichFunction=='ranline'){
-circle = new Kinetic.Circle({
-        x: startx,
-        y: starty,
-        radius: 1,
-        fill: fillColor,
-        stroke: strokeColor,
-        strokeWidth: borderWidth,
-
-        name:'ranline'
-      });
-
-
- setEventsForObject(circle,layer,stage);
- 
-    layer.add(circle);
-   
-}
-
-      });
- layer.add(objectValue);
-
-}
-
-   $(document).ready(function()
-   {
-
-if (window.attachEvent) {
-    window.attachEvent('onload', sceneInit);
-} else {
-    if (window.onload) {
-        var curronload = window.onload;
-        var newonload = function() {
-            curronload();
-            sceneInit();
-        };
-        window.onload = newonload;
-    } else {
-        window.onload = sceneInit;
-    }
-}
-
-
-
-
-$("#flat").spectrum({
-    flat: true,
-    showInput: true
-});
-$("#flatClearable").spectrum({
-    flat: true,
-    showInput: true,
-    allowEmpty:true
-});
-
-
-layer = new Kinetic.Layer({
-	rotationDeg:0,
-	draggable:false
-});
-stage = new Kinetic.Stage({
-        container: 'container',
-        width: window.innerWidth-marginHorizontal-40,
-        height: window.innerHeight-(marginVertical/2)
-      });
-
-
-
-    	
-     
-     createMainRectangle(layer,stage);
-     
-      
-    
-
-      
- keypress.combo("c", function() {
-    console.log("You pressed c Sample function. Will be used in future maybe");
-
-}
-
-);
-
-
- 
-
-     
-     
-
-      
-
-     
-      stage.add(layer);
-});
-
-		</script>
+            stage = new Kinetic.Stage({
+                container: 'container',
+                width: window.innerWidth - marginHorizontal - 40,
+                height: window.innerHeight - (marginVertical / 2)
+            });
+            createMainRectangle(layer, stage);
+            keypress.combo("c", function() {
+                console.log("You pressed c Sample function. Will be used in future maybe");
+            });
+            stage.add(layer);
+        });
+    </script>
 
 </head>
 
 <body>
-<div style="width: 100%; overflow: hidden;">
-<div id="container" style='float:left'>
-<canvas id='hide' height='1050' width='1850' style="position:absolute;top:0;left:0">
-</canvas>
+    <div style="width: 100%; overflow: hidden;">
+        <div id="container" style='float:left'>
+            <canvas id='hide' height='1050' width='1850' style="position:absolute;top:0;left:0">
+            </canvas>
 
-</div>
-<div id='buttons' style='overflow:hidden'>
-<button id='drawline' style='float:left' onclick='setEventHandlers("drawline")'>DrawLine</button>
-<button id='drawrectangle' style='float:right' onclick='setEventHandlers("drawrect")'>DrawRect</button>
-<button id='drawcircle' style='float:left' onclick='setEventHandlers("drawcircle")'>DrawCircle</button>
-<button id='drawtriangle' style='float:right' onclick='setEventHandlers("drawtriangle")'>DrawTrng</button>
-<button id='clear' style='float:left' onclick='clearAll1()'>Undo</button><br/>
-<button id='clear' style='float:left' onclick='clearAll2()'>Clear All</button><br/>
-<button id='eraser' style='float:right' onclick='setEventHandlers("eraser")'>eraser</button>
-<button id='ranline' style='float:left' onclick='setEventHandlers("ranline")'>ranline</button>
-<button id='polygon' style='float:right' onclick='setEventHandlers("polygon")'>Polygon</button>
-<button id='blob' style='float:left' onclick='setEventHandlers("blob")'>blob</button>
-<button id='spline' style='float:right' onclick='setEventHandlers("spline")'>spline</button>
-<button id='star' style='float:left' onclick='setEventHandlers("star")'>star</button>
-<button id='text' style='float:right' onclick='setEventHandlers("text")'>text</button>
-<button id='wholefill' style='float:left' onclick='setEventHandlers("wholefill")'>wholefill</button>
-<button id='imageobject' style='float:left' onclick='setEventHandlers("imageobject")'>Image</button>
-<button id='reset' style='float:right' onclick='setEventHandlers("reset")'>Reset</button>
-<button id='wedge0' style='float:right' onclick='setEventHandlers(0)'>Wedge 0</button>
-<button id='wedge90' style='float:left' onclick='setEventHandlers(90)'>Wedge -90</button>
-<button id='wedge180' style='float:right' onclick='setEventHandlers(180)'>Wedge 180</button>
-<button id='wedge-90' style='float:left' onclick='setEventHandlers(-90)'>Wedge 90</button>
-<button id='ellipse' style='float:right' onclick='setEventHandlers("ellipse")'>Ellipse</button>
-<button id='seldel' style='float:left' onclick='setEventHandlers("seldel")'>Select Del</button>
-<br/><br/><br/><br/>
-
-
-
-
-        <div class='example'>
-            <input type='text' id='flat' value="#00eee4" />
-             <input type='text' id='selColorValue' value="#00eee4" />
-             <!--<button onclick="isThatColor();" >click me!</button>-->
- </div>
+        </div>
+        <div id='buttons' style='overflow:hidden'>
+            <button id='drawline' style='float:left' onclick='setEventHandlers("drawline")'>DrawLine</button>
+            <button id='drawrectangle' style='float:right' onclick='setEventHandlers("drawrect")'>DrawRect</button>
+            <button id='drawcircle' style='float:left' onclick='setEventHandlers("drawcircle")'>DrawCircle</button>
+            <button id='drawtriangle' style='float:right' onclick='setEventHandlers("drawtriangle")'>DrawTrng</button>
+            <button id='clear' style='float:left' onclick='undo()'>Undo</button>
+            <br/>
+            <button id='clear' style='float:left' onclick='clearAll()'>Clear All</button>
+            <br/>
+            <button id='eraser' style='float:right' onclick='setEventHandlers("eraser")'>eraser</button>
+            <button id='ranline' style='float:left' onclick='setEventHandlers("ranline")'>ranline</button>
+            <button id='polygon' style='float:right' onclick='setEventHandlers("polygon")'>Polygon</button>
+            <button id='blob' style='float:left' onclick='setEventHandlers("blob")'>blob</button>
+            <button id='spline' style='float:right' onclick='setEventHandlers("spline")'>spline</button>
+            <button id='star' style='float:left' onclick='setEventHandlers("star")'>star</button>
+            <button id='text' style='float:right' onclick='setEventHandlers("text")'>text</button>
+            <button id='wholefill' style='float:left' onclick='setEventHandlers("wholefill")'>wholefill</button>
+            <button id='imageobject' style='float:left' onclick='setEventHandlers("imageobject")'>Image</button>
+            <button id='reset' style='float:right' onclick='setEventHandlers("reset")'>Reset</button>
+            <button id='wedge0' style='float:right' onclick='setEventHandlers(0)'>Wedge 0</button>
+            <button id='wedge90' style='float:left' onclick='setEventHandlers(90)'>Wedge -90</button>
+            <button id='wedge180' style='float:right' onclick='setEventHandlers(180)'>Wedge 180</button>
+            <button id='wedge-90' style='float:left' onclick='setEventHandlers(-90)'>Wedge 90</button>
+            <button id='ellipse' style='float:right' onclick='setEventHandlers("ellipse")'>Ellipse</button>
+            <button id='seldel' style='float:left' onclick='setEventHandlers("seldel")'>Select Del</button>
+            <br/>
+            <br/>
+            <br/>
+            <br/>
 
 
- <div id="result1" style='background-color:white;color:white'>.</div>
-        <div id="result-text"></div>
+
+
+            <div class='example'>
+                <input type='text' id='flat' value="#00eee4" />
+                <input type='text' id='selColorValue' value="#00eee4" />
+                <!--<button onclick="isThatColor();" >click me!</button>-->
+            </div>
+
+
+            <div id="result1" style='background-color:white;color:white'>.</div>
+            <div id="result-text"></div>
 
 
             <br/>
         </div>
-</div>
-</div>
+    </div>
+    </div>
 
 
 
 
 
-            <div id='containersmall'><table><tr><td>
-Line Width</td><td><select onchange="gosetwidth(this.value)">
-  <option style="1">1</option>
-  <option value="2">2</option>
-  <option value="3">3</option>
-  <option value="4">4</option>
-  <option value="5">5</option>
-  <option value="6">6</option>
-  <option value="7">7</option>
-  <option value="8">8</option>
-</select></td>
+    <div id='containersmall'>
+        <table>
+            <tr>
+                <td>
+                    Line Width</td>
+                <td>
+                    <select onchange="gosetwidth(this.value)">
+                        <option style="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                </td>
 
-<td>
+                <td>
 
-Eraser Size</td><td><select onchange="goseterasersize(this.value)">
-  <option value="5">5</option>
-  <option value="6">6</option>
-  <option value="7">7</option>
-  <option value="8">8</option>
-  <option value="9">9</option>
-  <option value="10">10</option>
-</select>
-</td>
-
-
-<td>
-Line Cap Style</td><td><select onchange="gosetlinecapstyle(this.value)">
-  <option value="round">round</option>
-  <option value="square">square</option>
-</select>
-</td>
-<td>
-  
-  
-</td>
-
-<td>
-  
-  
-</td>
-
-<td id='positionindicatorsx'>
-
-  </td>
-</tr>
-<tr><td>
-
-Line Style</td><td><select onchange="gosetlinestyle(this.value)">
-  <option value="dotline">Dotted Line</option>
-  <option value="centerline">Canter Line</option>
-   <option value="simpleline">Simple Line</option>
-</select></td>
-
-<td>
-
-Corner Radius</td><td><select onchange="gosetcornerradius(this.value)">
- <option style="1">1</option>
-  <option value="2">2</option>
-  <option value="3">3</option>
-  <option value="4">4</option>
-  <option value="5">5</option>
-  <option value="6">6</option>
-  <option value="7">7</option>
-  <option value="8">8</option>
-</select>
-</td>
+                    Eraser Size</td>
+                <td>
+                    <select onchange="goseterasersize(this.value)">
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                    </select>
+                </td>
 
 
-<td>
-Number of sides Triangle</td><td><select onchange="gosettrianglesides(this.value)">
-  <option value="3">3</option>
-  <option value="4">4</option>
-  <option value="5">5</option>
-  <option value="6">6</option>
-  <option value="7">7</option>
-  <option value="8">8</option>
-</select>
-</td>
-<td>
-  
-  
-</td>
-
-<td>
-  
-  
-</td>
-
-<td id='positionindicatorsy'>
-
-  </td>
-</tr>
-<tr>
-<td>
-Font Size</td><td><select onchange="gosetfontsize(this.value)">
-  <option value="8">8</option>
-  <option value="9">9</option>
-  <option value="10">10</option>
-  <option value="11">11</option>
-  <option value="12">12</option>
-  <option value="13">13</option>
-  <option value="14">14</option>
-  <option value="15">15</option>
-  <option value="16">16</option>
-  <option value="17">17</option>
-  <option value="18">18</option>
-  <option value="19">19</option>
-  <option value="20">20</option>
-  <option value="21">21</option>
-  <option value="22">22</option>
-</select>
-</td>
-
-<td>
-Font Family</td><td><select onchange="gosetfontfamily(this.value)">
-  <option value="Calibri">Calibri</option>
-  <option value="Times New Roman">Times New Roman</option>
-  <option value="Palatino Linotype">Palatino Linotype</option>
-  <option value="Book Antiqua">Book Antiqua</option>
-  <option value="Palatino">Palatino</option>
-  <option value="serif">serif</option>
-  <option value="Georgia">Georgia</option>
-  <option value="Lucida Console">Lucida Console</option>
-  <option value="Monaco">Monaco</option>
-  <option value="Courier New">Courier New</option>
-  <option value="Courier">Courier</option>
-  <option value="monospace">monospace</option>
-</select>
-</td>
+                <td>
+                    Line Cap Style</td>
+                <td>
+                    <select onchange="gosetlinecapstyle(this.value)">
+                        <option value="round">round</option>
+                        <option value="square">square</option>
+                    </select>
+                </td>
+                <td>
 
 
-<td>
-Color Type</td><td><select onchange="gosetcolortype(this.value)">
-  <option value="stroke">stroke</option>
-  <option value="fill">fill</option>
-  <option value="back">Background Color</option>
-</select>
-</td>
-<td>
-  </td>
-<td>
-</td>
-<td>
-Opacity</td><td><select onchange="gosetopacity(this.value)">
-  <option value="0">0</option>
-  <option value="0.2">0.2</option>
-  <option value="0.4">0.4</option>
-  <option value="0.6">0.6</option>
-  <option value="0.8">0.8</option>
-  <option value="1">1</option>
-</select>
+                </td>
 
-  </td>
-</tr>
-</table>
-</div>
+                <td>
 
-<br/><br/>
-<div id='positionindicators'>
-      <div id='xpos'></div>
-      <div id='ypos'></div>
+
+                </td>
+
+                <td id='positionindicatorsx'>
+
+                </td>
+            </tr>
+            <tr>
+                <td>
+
+                    Line Style</td>
+                <td>
+                    <select onchange="gosetlinestyle(this.value)">
+                        <option value="dotline">Dotted Line</option>
+                        <option value="centerline">Canter Line</option>
+                        <option value="simpleline">Simple Line</option>
+                    </select>
+                </td>
+
+                <td>
+
+                    Corner Radius</td>
+                <td>
+                    <select onchange="gosetcornerradius(this.value)">
+                        <option style="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                </td>
+
+
+                <td>
+                    Number of sides Triangle</td>
+                <td>
+                    <select onchange="gosettrianglesides(this.value)">
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                </td>
+                <td>
+
+
+                </td>
+
+                <td>
+
+
+                </td>
+
+                <td id='positionindicatorsy'>
+
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    Font Size</td>
+                <td>
+                    <select onchange="gosetfontsize(this.value)">
+                        <option value="8">8</option>
+                        <option value="9">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                    </select>
+                </td>
+
+                <td>
+                    Font Family</td>
+                <td>
+                    <select onchange="gosetfontfamily(this.value)">
+                        <option value="Calibri">Calibri</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Palatino Linotype">Palatino Linotype</option>
+                        <option value="Book Antiqua">Book Antiqua</option>
+                        <option value="Palatino">Palatino</option>
+                        <option value="serif">serif</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Lucida Console">Lucida Console</option>
+                        <option value="Monaco">Monaco</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Courier">Courier</option>
+                        <option value="monospace">monospace</option>
+                    </select>
+                </td>
+
+
+                <td>
+                    Color Type</td>
+                <td>
+                    <select onchange="gosetcolortype(this.value)">
+                        <option value="stroke">stroke</option>
+                        <option value="fill">fill</option>
+                        <option value="back">Background Color</option>
+                    </select>
+                </td>
+                <td>
+                </td>
+                <td>
+                </td>
+                <td>
+                    Opacity</td>
+                <td>
+                    <select onchange="gosetopacity(this.value)">
+                        <option value="0">0</option>
+                        <option value="0.2">0.2</option>
+                        <option value="0.4">0.4</option>
+                        <option value="0.6">0.6</option>
+                        <option value="0.8">0.8</option>
+                        <option value="1">1</option>
+                    </select>
+
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <br/>
+    <br/>
+    <div id='positionindicators'>
+        <div id='xpos'></div>
+        <div id='ypos'></div>
 
     </div>
 

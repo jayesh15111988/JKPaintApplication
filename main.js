@@ -4,7 +4,7 @@
  *
  * Licensed under the MIT license.
  * http://www.opensource.org/licenses/mit-license.php
- * 
+ *
  * Copyright 2012, Script Tutorials
  * http://www.script-tutorials.com/
  */
@@ -44,7 +44,7 @@ console.log("drawing");
         }
 
         // Rotate the shapes
-        
+
     }
 
     // Draw all shapes
@@ -112,7 +112,7 @@ CPointer = function (canvas) {
     drawScene();
     }
     self.elem.onmouseup = function() {
-      
+
 
         self.bXi = self.Xi;
         self.bYi = self.Yi;
@@ -121,12 +121,12 @@ CPointer = function (canvas) {
             self.Y = self.sY;
         }
         drawScene();
-        
+
         self.bDrag = false;
         self.bDown = false;
         self.bMoved = false;
-       
-    
+
+
     }
 }
 
@@ -135,7 +135,7 @@ var Point = function (x, y, z) {
     this.y  = y;
     this.z  = z;
     this.x0 = x;
-    
+
     this.xp = 0;
     this.yp = 0;
     this.zp = 0;
@@ -216,21 +216,6 @@ function sceneInit() {
 
     ctx = canvas.getContext('2d');
 
-    // Add two custom shapes
-    /*var oShape = new Shape();
-    oShape.addPoint(-200,-200,50);
-    oShape.addPoint(0,0,0);
-    oShape.addPoint(-400,200,0);
-    oShape.addPoint(200,-400,-50);
-    aShapes.push(oShape);
-
-    var oShape2 = new Shape();
-    oShape2.addPoint(200,200,-50);
-    oShape2.addPoint(0,0,0);
-    oShape2.addPoint(400,-200,0);
-    oShape2.addPoint(-200,400,50);
-    aShapes.push(oShape2);
-*/
     // Mouse pointer event handler
     vPointer = new CPointer(canvas);
 

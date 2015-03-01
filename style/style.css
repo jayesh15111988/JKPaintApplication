@@ -1,0 +1,54 @@
+.drawline {
+    margin-left: : 1220px;
+    position: absolute;
+}
+button {
+    color: white;
+    border-radius: 4px;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    background: rgb(28, 184, 65);
+}
+input[type=text] {
+    width: 12em;
+    border-radius: 2px;
+    border: solid 1px #ccc;
+    padding: 0.4em;
+    background-color: #f5f5f5;
+    box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.2);
+}
+#containersmall {
+    color: #222;
+    text-shadow: 0px 1px 1px #555;
+}
+/*http://cssdeck.com/labs/styling-select-box-with-css3 */
+
+select {
+    padding: 3px;
+    margin: 0;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+    -moz-box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+    box-shadow: 0 3px 0 #ccc, 0 -1px #fff inset;
+    background: rgb(28, 184, 65);
+    color: rgb(228, 255, 255);
+    border: none;
+    outline: none;
+    display: inline-block;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+.wait {
+    cursor: wait
+}
+​
+/* Targetting Webkit browsers only. FF will show the dropdown arrow with so much padding. */
+
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+    select {
+        padding-right: 18px
+    }
+}
