@@ -16,7 +16,6 @@
     <script src='js/drawRandomLine.js'></script>
     <script src='js/eventHandlersSetup.js'></script>
     <script src='js/mainCanvasRectangleCreator.js'></script>
-    <script src='js/keyPressEvents.js'></script>
     <script src='js/undo.js'></script>
     <script src='js/clearAll.js'></script>
     <script src='js/colorUtility.js'></script>
@@ -102,16 +101,16 @@
 
 
 
-            <div class='example'>
+            <div>
                 <input type='text' id='flat' value="#00eee4" />
                 <input type='text' id='selColorValue' value="#00eee4" />
-                <!--<button onclick="isThatColor();" >click me!</button>-->
+                <button onclick="isThatColor();">click me!</button>
             </div>
 
-
-            <div id="result1" style='background-color:white;color:white'>.</div>
-            <div id="result-text"></div>
-
+            <div class='colorResult'>
+                <div id="result1" style='background-color:white;color:white'>.</div>
+                <div id="result-text"></div>
+            </div>
 
             <br/>
         </div>
@@ -292,12 +291,11 @@
                     Opacity</td>
                 <td>
                     <select onchange="gosetopacity(this.value)">
-                        <option value="0">0</option>
-                        <option value="0.2">0.2</option>
-                        <option value="0.4">0.4</option>
-                        <option value="0.6">0.6</option>
-                        <option value="0.8">0.8</option>
                         <option value="1">1</option>
+                        <option value="0.8">0.8</option>
+                        <option value="0.6">0.6</option>
+                        <option value="0.4">0.4</option>
+                        <option value="0.2">0.2</option>
                     </select>
 
                 </td>

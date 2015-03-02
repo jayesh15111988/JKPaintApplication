@@ -52,3 +52,7 @@ select {
         padding-right: 18px
     }
 }
+#result1 {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
